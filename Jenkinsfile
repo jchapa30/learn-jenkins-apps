@@ -1,43 +1,45 @@
-pipeline { 
-    agent {
-        docker {
-            image 'node:18-alpine'
-            reuseNode true // Reuse the same container for the pipeline stages
-        }
-    }
+pipeline {
+    agent any
+
     stages {
+        stage('Checkout SCM') {
+            steps {
+                // Checkout the code from the Git repository
+                checkout scm
+            }
+        }
+
         stage('Initial Check') {
             steps {
-                // List all files in the workspace
-                sh 'ls -al'
-                
-                // List Node.js and npm versions
+                // Print the node and npm versions
                 sh 'node --version'
                 sh 'npm --version'
             }
         }
+
         stage('Install Dependencies') {
             steps {
-                // Install dependencies using npm ci
-                sh 'npm ci'
+                // Clean npm cache and install dependencies
+                sh 'npm cache clean --force'
+                sh 'npm ci' // or use 'npm install' if you prefer
             }
         }
-        stage('Run Build') {
+
+        stage('Run Tests') {
             steps {
-                // Run the build command
-                sh 'npm run build'
+                // Add your testing command here, for example:
+                sh 'npm test'
             }
         }
-        stage('Final Check') {
-            steps {
-                // List all files in the workspace again
-                sh 'ls -al'
-            }
-        }
+
+        // Add more stages as needed
     }
+
     post {
         always {
-            echo 'Pipeline completed.'
+            // Archive the artifacts or perform cleanup actions
+            archiveArtifacts artifacts: '**/build/**', fingerprint: true
+            cleanWs() // Clean workspace
         }
     }
 }
