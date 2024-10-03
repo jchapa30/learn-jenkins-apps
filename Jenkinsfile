@@ -60,6 +60,9 @@ pipeline {
             // Archive the artifacts or perform cleanup actions
             archiveArtifacts artifacts: '**/build/**', fingerprint: true
             cleanWs() // Clean workspace
+
+            // Publish the JUnit test results
+            junit 'test-results/junit.xml'
         }
         success {
             echo "Build and tests successful!"
@@ -67,11 +70,6 @@ pipeline {
         failure {
             echo "Build or tests failed!"
         }
-        // Publish the JUnit test results
-        always {
-            junit 'test-results/junit.xml'
-        }
     }
 }
-
 
