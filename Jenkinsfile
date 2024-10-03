@@ -53,8 +53,6 @@ pipeline {
                 }
             }
         }
-
-        // Add more stages if necessary
     }
 
     post {
@@ -63,6 +61,17 @@ pipeline {
             archiveArtifacts artifacts: '**/build/**', fingerprint: true
             cleanWs() // Clean workspace
         }
+        success {
+            echo "Build and tests successful!"
+        }
+        failure {
+            echo "Build or tests failed!"
+        }
+        // Publish the JUnit test results
+        always {
+            junit 'test-results/junit.xml'
+        }
     }
 }
+
 
