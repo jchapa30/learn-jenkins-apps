@@ -1,25 +1,43 @@
-pipeline {
-    agent any
-
+pipeline { 
+    agent {
+        docker {
+            image 'node:18-alpine'
+            reuseNode true // Reuse the same container for the pipeline stages
+        }
+    }
     stages {
-        stage('Without Docker') {
+        stage('Initial Check') {
             steps {
-                script {
-                    sh 'echo "This stage runs without Docker"'
-                }
+                // List all files in the workspace
+                sh 'ls -al'
+                
+                // List Node.js and npm versions
+                sh 'node --version'
+                sh 'npm --version'
             }
         }
-        stage('With Docker - Node 18 Alpine') {
-            agent {
-                docker {
-                    image 'node:18-alpine'
-                }
-            }
+        stage('Install Dependencies') {
             steps {
-                script {
-                    sh 'echo "This stage runs inside a Docker container (Node 18 Alpine)"'
-                }
+                // Install dependencies using npm ci
+                sh 'npm ci'
             }
+        }
+        stage('Run Build') {
+            steps {
+                // Run the build command
+                sh 'npm run build'
+            }
+        }
+        stage('Final Check') {
+            steps {
+                // List all files in the workspace again
+                sh 'ls -al'
+            }
+        }
+    }
+    post {
+        always {
+            echo 'Pipeline completed.'
         }
     }
 }
