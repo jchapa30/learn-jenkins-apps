@@ -25,14 +25,36 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
+        stage('Build') {
             steps {
-                // Add your testing command here, for example:
-                sh 'npm test'
+                // Build command (replace this with your actual build command)
+                sh 'npm run build'
             }
         }
 
-        // Add more stages as needed
+        stage('Test') {
+            steps {
+                script {
+                    // Print message for Test stage
+                    echo 'Test stage'
+
+                    // Check if index.html exists in the build directory
+                    sh '''
+                    if [ -f ./build/index.html ]; then
+                        echo "index.html exists in the build directory."
+                    else
+                        echo "index.html does not exist in the build directory."
+                        exit 1
+                    fi
+                    '''
+
+                    // Run unit tests
+                    sh 'npm test'
+                }
+            }
+        }
+
+        // Add more stages if necessary
     }
 
     post {
