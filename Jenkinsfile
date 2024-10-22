@@ -2,23 +2,28 @@ pipeline {
     agent any
 
     stages {
-        stage('Test Docker') {
-            steps {
-                script {
-                    // Check the Docker version
-                    sh 'docker version'
-                    sh 'ls -la'
+        stage('Build') {
+            agent {
+                docker {
+                    image 'node:18-alpine' 
+                    reuseNode true
                 }
+            }
+            steps {
+                sh 'ls -la'
+                sh 'node --version'
+                sh 'npm --version'
+                sh 'npm ci'
+                sh 'npm run build'
+                sh 'ls -la'
             }
         }
 
         stage('Non-Docker Step') {
             steps {
-                script {
-                    // An example command that doesn't use Docker
-                    sh 'echo "This is a non-Docker step in the pipeline."'
-                    sh 'ls -la'
-                }
+                // Any commands you want to run outside the Docker container go here
+                sh 'echo "This is a non-Docker step."'
+                sh 'ls -la'
             }
         }
     }
