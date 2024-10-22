@@ -26,5 +26,22 @@ pipeline {
                 sh 'ls -la'
             }
         }
+
+        stage('Test') {
+            agent {
+                docker {
+                    image 'node:18-alpine' 
+                    reuseNode true
+                }
+            }
+            steps {
+                sh 'echo "Checking for the presence of index.html"'
+                sh 'test -f build/index.html && echo "index.html exists" || echo "index.html does not exist"'
+                sh 'npm test'
+                sh 'node --version'
+                sh 'npm --version'
+                sh 'npm ci'
+            }
+        }
     }
 }
