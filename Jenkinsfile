@@ -5,7 +5,7 @@ pipeline {
         stage('Build') {
             agent {
                 docker {
-                    image 'node:18-alpine' 
+                    image 'node:18-alpine'
                     reuseNode true
                 }
             }
@@ -21,7 +21,6 @@ pipeline {
 
         stage('Non-Docker Step') {
             steps {
-                // Any commands you want to run outside the Docker container go here
                 sh 'echo "This is a non-Docker step."'
                 sh 'ls -la'
             }
@@ -30,7 +29,7 @@ pipeline {
         stage('Test') {
             agent {
                 docker {
-                    image 'node:18-alpine' 
+                    image 'node:18-alpine'
                     reuseNode true
                 }
             }
@@ -41,6 +40,21 @@ pipeline {
                 sh 'node --version'
                 sh 'npm --version'
                 sh 'npm ci'
+            }
+        }
+
+        stage('E2E') {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.48.1-noble'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh 'echo "Installing serve package globally for E2E testing"'
+                sh 'npm install -g serve'
+                sh 'serve -s build &'
+                sh 'npx playwright test'
             }
         }
     }
